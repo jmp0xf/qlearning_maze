@@ -42,11 +42,11 @@ class Robot(object):
         """
         if self.testing:
             # TODO 1. No random choice when testing
-            pass
+            self.epsilon = 0
         else:
             # TODO 2. Update parameters when learning
-            pass
-
+            self.t += 1
+            self.epsilon = self.epsilon0 / self.t
         return self.epsilon
 
     def sense_state(self):
@@ -55,7 +55,7 @@ class Robot(object):
         """
 
         # TODO 3. Return robot's current state
-        return None
+        return self.maze.sense_robot()
 
     def create_Qtable_line(self, state):
         """
@@ -66,7 +66,8 @@ class Robot(object):
         # Qtable[state] ={'u':xx, 'd':xx, ...}
         # If Qtable[state] already exits, then do
         # not change it.
-        pass
+        if state not in self.Qtable:
+            self.Qtable[state] = {a:0. for a in self.valid_actions}
 
     def choose_action(self):
         """
@@ -77,28 +78,37 @@ class Robot(object):
             # TODO 5. Return whether do random choice
             # hint: generate a random number, and compare
             # it with epsilon
-            pass
+            return random.random()<self.epsilon
+
+        def random_action():
+            return random.choice(self.valid_actions)
+
+        def action_with_highest_q():
+            return max(self.Qtable[self.state], key=self.Qtable[self.state].get)
 
         if self.learning:
             if is_random_exploration():
                 # TODO 6. Return random choose aciton
-                return None
+                return random_action()
             else:
                 # TODO 7. Return action with highest q value
-                return None
+                return action_with_highest_q()
         elif self.testing:
             # TODO 7. choose action with highest q value
+            return action_with_highest_q()
         else:
             # TODO 6. Return random choose aciton
+            return random_action()
 
     def update_Qtable(self, r, action, next_state):
         """
         Update the qtable according to the given rule.
         """
         if self.learning:
-            pass
             # TODO 8. When learning, update the q table according
             # to the given rules
+            self.Qtable[self.state][action] += self.alpha*(r+self.gamma*max(self.Qtable[next_state].values())-self.Qtable[self.state][action])
+
 
     def update(self):
         """
